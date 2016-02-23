@@ -1,0 +1,21 @@
+Main Algorithm:
+CHAMP: Changepoint Detection Using Approximate Model Parameters
+http://www.cs.utexas.edu/~sniekum/pubs/CHAMP.pdf
+
+Code:
+http://wiki.ros.org/changepoint
+https://github.com/sniekum/changepoint
+
+CHAMP is an approximate solution to the changepoint detection algorithm proposed by Fearnhead and Liu [1] which avoids integrating over the parameters of candidate models.
+
+[1] P. Fearnhead and Z. Liu. On-line inference for multiple changepoint
+problems. Journal of the Royal Statistical Society: Series B (Statistical
+Methodology), 69(4):589–605, 2007.
+
+**For Nadia**
+Articulation Models:
+A probabilistic framework for learning kinematic models of articulated objects.
+http://wiki.ros.org/articulation
+
+Probabilistic Model of an impedance controller:
+Learning Force-Based Manipulation of Deformable Objects from Multiple Demonstrations
