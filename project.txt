@@ -1,4 +1,17 @@
-Main Algorithm:
+** Literature Review, Existing Algorithms:
+Bayesian Changepoint Detection Methods
+https://github.com/hildensia/bayesian_changepoint_detection
+
+[1] Paul Fearnhead, Exact and Efficient Bayesian Inference for Multiple
+Changepoint problems, Statistics and computing 16.2 (2006), pp. 203--213
+
+[2] Ryan P. Adams, David J.C. MacKay, Bayesian Online Changepoint Detection,
+arXiv 0710.3742 (2007)
+
+[3] Xuan Xiang, Kevin Murphy, Modeling Changing Dependency Structure in
+Multivariate Time Series, ICML (2007), pp. 1055--1062
+
+**  Algorithm of interest:
 CHAMP: Changepoint Detection Using Approximate Model Parameters
 http://www.cs.utexas.edu/~sniekum/pubs/CHAMP.pdf
 
@@ -6,11 +19,26 @@ Code:
 http://wiki.ros.org/changepoint
 https://github.com/sniekum/changepoint
 
+
 CHAMP is an approximate solution to the changepoint detection algorithm proposed by Fearnhead and Liu [1] which avoids integrating over the parameters of candidate models.
 
-[1] P. Fearnhead and Z. Liu. On-line inference for multiple changepoint
-problems. Journal of the Royal Statistical Society: Series B (Statistical
-Methodology), 69(4):589–605, 2007.
+
+Questions:
+What is the advantage of this algorithm over the other ones? Which one is more useful/efficient/suitable for our application?
+
+
+Background Reading:
+(ML 4.1) Maximum Likelihood Estimation (MLE) (part 1)
+https://www.youtube.com/watch?v=aHwsEXCk4HA
+https://en.wikipedia.org/wiki/Maximum_likelihood
+
+(ML 6.1) Maximum a posteriori (MAP) estimation
+https://www.youtube.com/watch?v=kkhdIriddSI
+https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation
+
+***MAP vs MLE***
+http://www.mi.fu-berlin.de/wiki/pub/ABI/Genomics12/MLvsMAP.pdf
+
 
 **For Nadia**
 Articulation Models:
