@@ -27,7 +27,7 @@ Methods to get the probability of a changepoint in a time series. Both online an
   - The online version is basically a translation of the matlab version of the paper from
   author [1], found in ./matlab-implementation.
   - The offline version is an implementation based on [2a] and [3].
-  - Some conversation I found that might be interesting:
+  - A conversation I found online that might be interesting:
   
     Q: Is it possible to make Ryan Adams algorithm [1] to work on multivariate data too?
 
