@@ -1,9 +1,10 @@
 # changepoint-detection
 
-Project Goal:
-Implement an Online Changepoint Detection Algorithm for Segmenting Kinesthetic Data from Human Demonstrations or in Human-Robot interaction scenarios.
+###Project Goal
 
-###Bayesian Changepoint Detection:
+Implement an Online Changepoint Detection Algorithm for Segmenting Kinesthetic Data from Human Demonstrations or in Human-Robot interaction scenarios, such a problem is known in Machine Learning and Statistics Literatura as "Bayesian Changepoint Detection".
+
+####Bayesian Changepoint Detection:
 
 Methods to get the probability of a changepoint in a time series. Both online and offline methods are availeble. Read the following papers to really understand the methods:
 
