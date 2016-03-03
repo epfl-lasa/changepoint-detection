@@ -29,8 +29,9 @@ Methods to get the probability of a changepoint in a time series. Both online an
   - The offline version is an implementation based on [2a] and [3].
   - Some conversation I found that might be interesting:
   
-  Q: Is it possible to make Ryan Adams algorithm [1] to work on multivariate data too?
-  A: The change should be relatively easy, but a bit time consuming. It's only updating the student t distribution to handle multivariate data correctly. 
+    Q: Is it possible to make Ryan Adams algorithm [1] to work on multivariate data too?
+
+    A: The change should be relatively easy, but a bit time consuming. It's only updating the student t distribution to handle multivariate data correctly. 
 
 - A c++ implementation of [4] is found in (http://wiki.ros.org/changepoint) and
 (https://github.com/sniekum/changepoint) 
