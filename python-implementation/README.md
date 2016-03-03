@@ -3,6 +3,8 @@
 Bayesian Changepoint Detection
 ==============================
 
+**This code has been forked from** [hildensia/bayesian_changepoint_detection](https://github.com/hildensia/bayesian_changepoint_detection).
+
 Methods to get the probability of a changepoint in a time series. Both online and offline methods are availeble. Read the following papers to really understand the methods:
 
 
