@@ -23,7 +23,7 @@ Methods to get the probability of a changepoint in a time series. Both online an
 A matlab implementation of [1] is found in ./matlab-implementation directory. 
 
 A python implementation of [1,2a,3] is found in ./python-implementation directory.
-####Tips:
+#####Tips on python implementation:
 - The online version is basically a translation of the matlab version of the paper from
 author [1] (found in matlab-implementation)
 
