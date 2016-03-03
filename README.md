@@ -2,7 +2,7 @@
 
 ###Project Goal
 
-Implement an Online Changepoint Detection Algorithm for Segmenting Kinesthetic Data from Human Demonstrations or in Human-Robot interaction scenarios, such a problem is known in Machine Learning and Statistics Literatura as "Bayesian Changepoint Detection".
+Implement an Online Changepoint Detection Algorithm for Segmenting Kinesthetic Data from Human Demonstrations or in Human-Robot interaction scenarios, such a problem is known in Machine Learning and Statistics Literature as "Bayesian Changepoint Detection".
 
 ####Bayesian Changepoint Detection:
 
