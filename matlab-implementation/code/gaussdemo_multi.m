@@ -42,20 +42,23 @@ hazard_func  = @(r) constant_hazard(r, lambda);
 % lots of references out there for doing this kind of inference - for
 % example Chris Bishop's "Pattern Recognition and Machine Learning" in
 % Chapter 2.  Also, Kevin Murphy's lecture notes.
-mu0    = 0;
+dim = 2 ;               %dimension of data
+mu0    = zeros(1,dim);
 kappa0 = 1;
-alpha0 = 1;
-beta0  = 1;
+alpha0 = ones(1,dim);
+beta0  = ones(1,dim);
+nu0 = 2;
+sigma0 = eye(dim);
 
 % This will hold the data.  Preallocate for a slight speed improvement.
-X = zeros([T 1]);
+X = zeros([T dim]);
 
 % Store the times of changepoints.  It's useful to see them.
 CP = [0];
 
 % Generate the initial parameters of the Gaussian from the prior.
-curr_ivar = randgamma(alpha0)/beta0;
-curr_mean = (kappa0*curr_ivar)^(-0.5)*randn() + mu0;
+curr_ivar = randgamma(alpha0)./beta0;
+curr_mean = (kappa0.*curr_ivar).^(-0.5).*randn() + mu0;
 
 % The initial run length is zero.
 curr_run = 0;
@@ -70,8 +73,8 @@ for t=1:T
   if rand() < p
     
     % Generate new Gaussian parameters from the prior.
-    curr_ivar = randgamma(alpha0)*beta0;
-    curr_mean = (kappa0*curr_ivar)^(-0.5)*randn() + mu0;
+    curr_ivar = randgamma(alpha0).*beta0;
+    curr_mean = (kappa0.*curr_ivar).^(-0.5).*randn() + mu0;
 
     % The run length drops back to zero.
     curr_run = 0;
@@ -86,14 +89,15 @@ for t=1:T
   end
   
   % Draw data from the current parameters.
-  X(t) = curr_ivar^(-0.5) * randn() + curr_mean;
+  X(t,:) = curr_ivar.^(-0.5) .* randn() + curr_mean;
 end
 
 % Plot the data and we'll have a look.
-subplot(2,1,1);
-plot([1:T]', X, 'b-', CP, zeros(size(CP)), 'rx');
+subplot(2,2,1);
+plot([1:T]', X(:,1), 'b-', CP, zeros(size(CP)), 'rx');
+subplot(2,2,2);
+plot([1:T]', X(:,2), 'b-', CP, zeros(size(CP)), 'rx');
 grid;
- 
 
 % Now we have some data in X and it's time to perform inference.
 % First, setup the matrix that will hold our beliefs about the current
@@ -112,11 +116,13 @@ R(1,1) = 1;
 % accumulate data as we proceed.
 muT    = mu0;
 kappaT = kappa0;
-alphaT = alpha0;
-betaT  = beta0;
+% alphaT = alpha0;
+% betaT  = beta0;
+nuT = nu0;
+sigmaT = sigma0;
 
 % Keep track of the maximums.
-maxes  = zeros([T+1],1);
+maxes  = zeros(T+1,1);
 % changed from "zeros([T+1])" to reduce memory (only first column used)
 
 % Loop over the data like we're seeing it all for the first time.
@@ -124,9 +130,8 @@ for t=1:T
   
   % Evaluate the predictive distribution for the new datum under each of
   % the parameters.  This is the standard thing from Bayesian inference.
-  predprobs = studentpdf(X(t), muT, ...
-                         betaT.*(kappaT+1)./(alphaT.*kappaT), ...
-                         2 * alphaT);
+  predprobs = studentpdf_multi(X(t,:), muT, ...
+              sigmaT, nuT, dim);
   
   % Evaluate the hazard function for this interval.
   H = hazard_func([1:t]');
@@ -134,25 +139,35 @@ for t=1:T
   % Evaluate the growth probabilities - shift the probabilities down and to
   % the right, scaled by the hazard function and the predictive
   % probabilities.
-  R(2:t+1,t+1) = R(1:t,t) .* predprobs .* (1-H);
+  R(2:t+1,t+1) = R(1:t,t) .* predprobs' .* (1-H);
   
   % Evaluate the probability that there *was* a changepoint and we're
   % accumulating the mass back down at r = 0.
-  R(1,t+1) = sum( R(1:t,t) .* predprobs .* H );
+  R(1,t+1) = sum( R(1:t,t) .* predprobs' .* H );
   
   % Renormalize the run length probabilities for improved numerical
   % stability.
   R(:,t+1) = R(:,t+1) ./ sum(R(:,t+1));
 
   % Update the parameter sets for each possible run length.
-  muT0    = [ mu0    ; (kappaT.*muT + X(t)) ./ (kappaT+1) ];
+  muT0    = [ mu0    ; (kappaT.*muT(:,1) + X(t,1)) ./ (kappaT+1) , ...
+      (kappaT.*muT(:,2) + X(t,2)) ./ (kappaT+1)];
   kappaT0 = [ kappa0 ; kappaT + 1 ];
-  alphaT0 = [ alpha0 ; alphaT + 0.5 ];
-  betaT0  = [ beta0  ; betaT + (kappaT .*(X(t)-muT).^2)./(2*(kappaT+1)) ];
+  %alphaT0 = [ alpha0 ; alphaT + 0.5 ];
+  %betaT0  = [ beta0  ; betaT + (kappaT .*(X(t,:)-muT).^2)./(2*(kappaT+1)) ];
+  nuT0    = [ nu0    ; nuT + 1 ];
+  X_mu = [(X(t,1)-muT(:,1)),(X(t,2)-muT(:,2))];
+  X_mu_2 = X_mu'*X_mu;
+  l = size(kappaT,1);
+  X_mu_k = [ kappaT(l)*X_mu_2(:,1)/(kappaT(l)+1), ...
+      kappaT(l)*X_mu_2(:,2)/(kappaT(l)+1) ];
+  sigmaT0 = [ sigmaT; sigma0 + X_mu_k];
   muT     = muT0;
   kappaT  = kappaT0;
-  alphaT  = alphaT0;
-  betaT   = betaT0;
+  %alphaT  = alphaT0;
+  %betaT   = betaT0;
+  nuT     = nuT0;
+  sigmaT  = sigmaT0;
   
   % Store the maximum, to plot later.
   maxes(t) = find(R(:,t)==max(R(:,t)));
