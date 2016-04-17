@@ -124,10 +124,12 @@ for t=1:T
   
   % Evaluate the predictive distribution for the new datum under each of
   % the parameters.  This is the standard thing from Bayesian inference.
+  
+  size(muT)
   predprobs = studentpdf(X(t), muT, ...
                          betaT.*(kappaT+1)./(alphaT.*kappaT), ...
                          2 * alphaT);
-  
+  size(predprobs)
   % Evaluate the hazard function for this interval.
   H = hazard_func([1:t]');
   
