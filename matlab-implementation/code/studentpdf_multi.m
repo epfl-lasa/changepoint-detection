@@ -12,14 +12,19 @@ function p = studentpdf_multi(x, mu, covar, nu, kappa, dim)
 % nu: positive scalar
 
 
-X_mu = [(x(1)-mu(:,1)),(x(2)-mu(:,2))];
+X_mu = bsxfun(@minus, x, mu);
 m = size(X_mu,1);
 for i = 1:m
     %mult(i) = X_mu(i,:)*covar((2*i-1):2*i,:)*X_mu(i,:)';
-    c = 2*(kappa(i)+1).*covar(:,:,i)./(nu(i).*kappa(i));
+    c = 2*(kappa(i)+1).*inv(covar(:,:,i))./((nu(i)).*kappa(i));
     mult = X_mu(i,:)*c*X_mu(i,:)';
     logc = gammaln(nu(i)/2 + dim/2) - gammaln(nu(i)/2) ...
         + 0.5*log(det(c)) ...
         - (dim/2)*log(nu(i)) - (dim/2)*log(pi);
-    p(i) = exp(logc)*(1 + exp(log1p(mult/nu(i)))^(-(nu(i)+dim)/2));
+    p(i) = logc - ((nu(i)+dim)/2)*log1p(mult/nu(i));
+    %p(i) = exp(logc - ((nu(i)+dim)/2)*log1p(mult/nu(i)));
+    %p(i) = exp(logc)*(exp(log1p(mult/nu(i)))^(-(nu(i)+dim)/2));
+    if p(i) > 0
+       disp('prob > 1 !') 
+    end
 end

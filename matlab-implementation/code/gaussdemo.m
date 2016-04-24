@@ -66,19 +66,24 @@ for t=1:T
   % Get the probability of a new changepoint.
   p = hazard_func(curr_run);
   
+  
   % Randomly generate a changepoint, perhaps.
   if rand() < p
     
-    % Generate new Gaussian parameters from the prior.
-    curr_ivar = randgamma(alpha0)*beta0;
-    curr_mean = (kappa0*curr_ivar)^(-0.5)*randn() + mu0;
 
-    % The run length drops back to zero.
-    curr_run = 0;
-    
-    % Add this changepoint to the end of the list.
-    CP = [CP ; t];
-    
+    if curr_run > 200
+
+        % Generate new Gaussian parameters from the prior.
+        curr_ivar = randgamma(alpha0)*beta0;
+        curr_mean = (kappa0*curr_ivar)^(-0.5)*randn() + mu0;
+
+        
+        % The run length drops back to zero.
+        curr_run = 0;
+
+        % Add this changepoint to the end of the list.
+        CP = [CP ; t];
+    end
   else
     
     % Increment the run length if there was no changepoint.
@@ -102,6 +107,7 @@ grid;
 % inference.  You can imagine other data structures that don't make that
 % assumption (e.g. linked lists).  We're doing this because it's easy.
 R = zeros([T+1 T]);
+% R = zeros([100+1 100]);
 
 % At time t=1, we actually have complete knowledge about the run
 % length.  It is definitely zero.  See the paper for other possible
@@ -120,7 +126,7 @@ maxes  = zeros([T+1],1);
 % changed from "zeros([T+1])" to reduce memory (only first column used)
 
 % Loop over the data like we're seeing it all for the first time.
-for t=1:T
+for t=1:1000
   
   % Evaluate the predictive distribution for the new datum under each of
   % the parameters.  This is the standard thing from Bayesian inference.
@@ -129,6 +135,7 @@ for t=1:T
   predprobs = studentpdf(X(t), muT, ...
                          betaT.*(kappaT+1)./(alphaT.*kappaT), ...
                          2 * alphaT);
+  
   %size(predprobs)
   % Evaluate the hazard function for this interval.
   H = hazard_func([1:t]');
@@ -146,6 +153,7 @@ for t=1:T
   % stability.
   R(:,t+1) = R(:,t+1) ./ sum(R(:,t+1));
 
+%    R(:,t)
   % Update the parameter sets for each possible run length.
   muT0    = [ mu0    ; (kappaT.*muT + X(t)) ./ (kappaT+1) ];
   kappaT0 = [ kappa0 ; kappaT + 1 ];

@@ -10,8 +10,7 @@
 %    NOTE = "arXiv:0710.3742v1 [stat.ML]"
 % }
 %
-% Thanks to Ryan Turner and Miguel Lazaro Gredilla for pointing out bugs
-% in this.
+% Changes by Ilaria Lauzana
 
 % First, we wil specify the prior.  We will then generate some fake data
 % from the prior specification.  We will then perform inference. Then
@@ -20,6 +19,8 @@
 % Start with a clean slate.
 close all;
 clear all;
+
+%% Initialization
 
 % How many time steps to generate?
 T = 1000;
@@ -34,15 +35,15 @@ T = 1000;
 % between changepoints.  We'll specify the rate via a mean.
 
 % To use uniform prior 1/lambda:
-% lambda = 200;
-% min_len = 0;
-% hazard_func  = @(r) constant_hazard(r, lambda);
+lambda = 200;
+min_len = 0;
+hazard_func  = @(r) constant_hazard(r, lambda);
 
 % To use truncated gaussian:
-mu_len = 200;
-sigma_len = 500; 
-min_len = 100;
-hazard_func  = @(r) truncated_gauss(r, mu_len, sigma_len, min_len);
+% mu_len = 300;
+% sigma_len = 50; 
+% min_len = 200;
+% hazard_func  = @(r) truncated_gauss(r, mu_len, sigma_len, min_len);
 
 % This data is Gaussian with unknown mean and variance.  We are going to
 % use the standard conjugate prior of a normal-inverse-gamma.  Note that
@@ -60,13 +61,14 @@ beta0  = ones(1,dim);
 nu0 = dim;
 sigma0 = eye(dim);
 
+
+%% Generate data
+
 % This will hold the data.  Preallocate for a slight speed improvement.
 X = zeros([T dim]);
 
 % Store the times of changepoints.  It's useful to see them.
 CP = [0];
-
-%% Generate data
 
 % Generate the initial parameters of the Gaussian from the prior.
 curr_ivar = randgamma(alpha0)./beta0;
@@ -80,20 +82,20 @@ for t=1:T
   
   % Get the probability of a new changepoint.
   p = hazard_func(curr_run);
-  
+      
   % Randomly generate a changepoint, perhaps.
-  if rand() < p % && (curr_run >= min_len) -> 2nd shouldn't be needed...
-    
-    % Generate new Gaussian parameters from the prior.
-    curr_ivar = randgamma(alpha0).*beta0;
-    curr_mean = (kappa0.*curr_ivar).^(-0.5).*randn() + mu0;
-
-    % The run length drops back to zero.
-    curr_run = 0;
-    
-    % Add this changepoint to the end of the list.
-    CP = [CP ; t];
-    
+  if rand() < p 
+      if curr_run > 200
+          % Generate new Gaussian parameters from the prior.
+          curr_ivar = randgamma(alpha0).*beta0;
+          curr_mean = (kappa0.*curr_ivar).^(-0.5).*randn() + mu0;
+          
+          % The run length drops back to zero.
+          curr_run = 0;
+          
+          % Add this changepoint to the end of the list.
+          CP = [CP ; t];
+      end
   else
     
     % Increment the run length if there was no changepoint.
@@ -110,9 +112,11 @@ end
 subplot(3,1,1);
 plot([1:T]', X(:,1), 'b-', CP, zeros(size(CP)), 'rx');
 grid on;
-subplot(3,1,2);
-plot([1:T]', X(:,2), 'b-', CP, zeros(size(CP)), 'rx');
-grid on;
+if dim > 1
+    subplot(3,1,2);
+    plot([1:T]', X(:,2), 'b-', CP, zeros(size(CP)), 'rx');
+    grid on;
+end
 
 % Now we have some data in X and it's time to perform inference.
 % First, setup the matrix that will hold our beliefs about the current
@@ -121,6 +125,7 @@ grid on;
 % inference.  You can imagine other data structures that don't make that
 % assumption (e.g. linked lists).  We're doing this because it's easy.
 R = zeros([T+1 T]);
+% R = zeros([10+1 10]);
 
 % At time t=1, we actually have complete knowledge about the run
 % length.  It is definitely zero.  See the paper for other possible
@@ -139,6 +144,7 @@ sigmaT(:,:,1) = sigma0;
 % Keep track of the maximums.
 maxes  = zeros(T+1,1);
 % changed from "zeros([T+1])" to reduce memory (only first column used)
+
 
 % Loop over the data like we're seeing it all for the first time.
 for t=1:T
@@ -167,22 +173,26 @@ for t=1:T
   % Renormalize the run length probabilities for improved numerical
   % stability.
   R(:,t+1) = R(:,t+1) ./ sum(R(:,t+1));
-
+  
+  
   % Update the parameter sets for each possible run length.
-  muT0    = [ mu0    ; (kappaT.*muT(:,1) + X(t,1)) ./ (kappaT+1) , ...
-      (kappaT.*muT(:,2) + X(t,2)) ./ (kappaT+1)];
+%   muT0    = [ mu0    ; (kappaT.*muT(:,1) + X(t,1)) ./ (kappaT+1) , ...
+%       (kappaT.*muT(:,2) + X(t,2)) ./ (kappaT+1)]
+  muT0    = [mu0; bsxfun(@rdivide, bsxfun(@plus, bsxfun(@times, kappaT, muT), X(t,:)), (kappaT+1))];
   kappaT0 = [ kappa0 ; kappaT + 1 ];
   nuT0    = [ nu0    ; nuT + 1 ];
-  X_mu = [(X(t,1)-muT(:,1)),(X(t,2)-muT(:,2))];
-  X_mu_2 = X_mu'*X_mu;
+%   X_mu = [(X(t,1)-muT(:,1)),(X(t,2)-muT(:,2))]
+%   X_mu_2 = X_mu'*X_mu;            % WRONG!
   %X_mu_k = [ kappaT.*X_mu_2(:,1)./(kappaT+1), ...
   %    kappaT.*X_mu_2(:,2)./(kappaT+1) ];
   sigmaT0 = sigmaT;
   sigmaT(:,:,1) = sigma0;
+  X_mu = bsxfun(@minus, X(t,:), muT);
   for i = 1:t
-      X_mu_k(:,:,i) = kappaT(i).*X_mu_2./(kappaT(i)+1);
-      sigmaT(:,:,i+1) = sigmaT0(:,:,i) + X_mu_k(:,:,i);
+      X_mu_2 = X_mu(i,:)'*X_mu(i,:);
+      sigmaT(:,:,i+1) = sigmaT0(:,:,i) + kappaT(i).*X_mu_2./(2*(kappaT(i)+1));
   end
+  
   muT     = muT0;
   kappaT  = kappaT0;
   nuT     = nuT0;
