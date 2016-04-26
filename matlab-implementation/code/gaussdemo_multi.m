@@ -56,8 +56,6 @@ hazard_func  = @(r) constant_hazard(r, lambda);
 dim = 2 ;               %dimension of data
 mu0    = zeros(1,dim);
 kappa0 = 1;
-alpha0 = ones(1,dim);
-beta0  = ones(1,dim);
 nu0 = dim;
 sigma0 = eye(dim);
 
@@ -71,8 +69,8 @@ X = zeros([T dim]);
 CP = [0];
 
 % Generate the initial parameters of the Gaussian from the prior.
-curr_ivar = randgamma(alpha0)./beta0;
-curr_mean = (kappa0.*curr_ivar).^(-0.5).*randn() + mu0;
+curr_ivar = wishrnd(inv(sigma0),nu0);
+curr_mean = mvnrnd(mu0,kappa0.*curr_ivar);
 
 % The initial run length is zero.
 curr_run = 0;
@@ -87,9 +85,9 @@ for t=1:T
   if rand() < p 
       if curr_run > 200
           % Generate new Gaussian parameters from the prior.
-          curr_ivar = randgamma(alpha0).*beta0;
-          curr_mean = (kappa0.*curr_ivar).^(-0.5).*randn() + mu0;
-          
+          curr_ivar = wishrnd(inv(sigma0),nu0);
+          curr_mean = mvnrnd(mu0,kappa0.*curr_ivar);
+
           % The run length drops back to zero.
           curr_run = 0;
           
@@ -103,7 +101,7 @@ for t=1:T
   end
   
   % Draw data from the current parameters.
-  X(t,:) = curr_ivar.^(-0.5) .* randn() + curr_mean;
+  X(t,:) = mvnrnd(curr_mean,curr_ivar);
 end
 
 %% Data already generated/imported
@@ -125,7 +123,6 @@ end
 % inference.  You can imagine other data structures that don't make that
 % assumption (e.g. linked lists).  We're doing this because it's easy.
 R = zeros([T+1 T]);
-% R = zeros([10+1 10]);
 
 % At time t=1, we actually have complete knowledge about the run
 % length.  It is definitely zero.  See the paper for other possible
@@ -136,8 +133,6 @@ R(1,1) = 1;
 % accumulate data as we proceed.
 muT    = mu0;
 kappaT = kappa0;
-% alphaT = alpha0;
-% betaT  = beta0;
 nuT = nu0;
 sigmaT(:,:,1) = sigma0;
 
@@ -177,16 +172,13 @@ for t=1:T
   
   % Update the parameter sets for each possible run length.
 %   muT0    = [ mu0    ; (kappaT.*muT(:,1) + X(t,1)) ./ (kappaT+1) , ...
-%       (kappaT.*muT(:,2) + X(t,2)) ./ (kappaT+1)]
+%       (kappaT.*muT(:,2) + X(t,2)) ./ (kappaT+1)];
   muT0    = [mu0; bsxfun(@rdivide, bsxfun(@plus, bsxfun(@times, kappaT, muT), X(t,:)), (kappaT+1))];
   kappaT0 = [ kappa0 ; kappaT + 1 ];
   nuT0    = [ nu0    ; nuT + 1 ];
-%   X_mu = [(X(t,1)-muT(:,1)),(X(t,2)-muT(:,2))]
-%   X_mu_2 = X_mu'*X_mu;            % WRONG!
-  %X_mu_k = [ kappaT.*X_mu_2(:,1)./(kappaT+1), ...
-  %    kappaT.*X_mu_2(:,2)./(kappaT+1) ];
   sigmaT0 = sigmaT;
   sigmaT(:,:,1) = sigma0;
+%   X_mu = [(X(t,1)-muT(:,1)),(X(t,2)-muT(:,2))];
   X_mu = bsxfun(@minus, X(t,:), muT);
   for i = 1:t
       X_mu_2 = X_mu(i,:)'*X_mu(i,:);
@@ -211,17 +203,13 @@ plot([1:T+1], maxes, 'r-');
 hold off;
 
 
-% Use exportfig to save the image.  You might not have this installed.
-% if 1
-%   exportfig(gcf, 'gaussdemo.png', ...
-%             'Format',     'png', ...
-%             'Width',      8,   ...
-%             'Height',     8,   ...
-%             'FontMode',   'fixed', ...
-%             'FontSize',   10, ...
-%             'LineMode',   'fixed', ...
-%             'LineWidth',  0.5, ...
-%             'Color',      'rgb', ...
-%             'Bounds',     'loose');
-% end
-% Commented as it would always give an error (not installed).
+%% Checking Data
+
+CPs   = [CP+1 , [CP(2:end)+1; T]];
+N_CPs = length(CPs);
+
+figure('Color',[1 1 1])
+for i=1:N_CPs
+    subplot(N_CPs,1,i)
+    scatter(X(CPs(i,1):CPs(i,2),1), X(CPs(i,1):CPs(i,2),2), 10, [rand rand rand])
+end
