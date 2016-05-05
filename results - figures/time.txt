@@ -1,0 +1,23 @@
+Toy data:
+
+full: 62s
+cut: 9s
+
+
+Carrot:
+
+full: 800s
+cut: 66s
+(truncated gaussian as prior on segment length)
+
+
+Rolling:
+
+full: 9900s
+cut: 3715s
+
+
+Rolling processed:
+
+full:
+cut: 840s (1st timeseries), 481s (3rd timeseries)
