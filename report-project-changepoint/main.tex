@@ -1,0 +1,158 @@
+\documentclass[a4paper]{article}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{color,soul}
+\usepackage{graphicx}
+\newcommand\Colorhref[3][blue]{\href{#2}{\small\color{#1}#3}}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[letterpaper, margin=1in]{geometry}
+\title{\textbf{Bayesian Online Changepoint Detection Algorithm for Multivariate Data}}
+
+\author{Ilaria Lauzana}
+
+\date{\today}
+
+\newpage
+\begin{document}
+\maketitle
+\clearpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+When considering a time series dataset such as the Normal distribution shown in Figure \ref{timeseries}, we have to deal with abrupt changes in one or more of the parameters of the model representing the data. Such changes happen at temporal locations called referred to as "changepoints" and it is of interest to know these locations. 
+
+\newpage
+
+\section{Bayesian Online Changepoint Detection Algorithm}
+
+The algorithm presented by Adams and MacKay tries to solve the changepoint detection problem by using a Bayesian approach in order to find the current "run length" $r_t$, which is the time since the last changepoint. Storing the run length found for all timesteps it is then possible to find the previous positions of the changepoints. 
+
+The algorithm basically combine:
+\begin{enumerate}
+\item the prior distribution representing the belief about the segment length;
+\item the predictive probabilities of a new datum for each possible run length;
+\item the posterior distribution of the run length calculated at the previous time step.
+\end{enumerate}
+
+The prior distribution of the segment length represents the prior belief of the distance between two changepoints. In the algorithm by Adams and Mackay, this prior is calculated using a $hazard$ $function$ $H(r_t)$ which is equal to a Geometric distribution with fixed parameter $\lambda$, such that the function $H(r_t) = 1/\lambda$ represents the assumption of a constant rate of changepoints. It is then a noninformative prior which is useful not to bias the results in cases when a priori knowledge is limited.
+
+The posterior predictive probabilities of a new datum are calculated by assuming a prior distribution on the parameters of the model. It is suggested to use a $conjugate$ $prior$ for the likelihood of the model, which allows to calculate the posterior distribution in analytic form and with the same parametric form as the prior distribution. With this assumption, the posterior predictive distribution may be directly built by updating correctly the prior's parameters, without the need of performing any integration.
+
+The algorithm also takes into account the posterior distribution calculated at the previous timestep, thus allowing for a recursion without the need to repeat previous calculations at each step. The initial condition of the posterior distribution considers the presence of a changepoint right before the beginning of our inference; in this way, the first datapoint's run length will necessarily be 1.
+
+The original algorithm only considers univariate timeseries represented by Normal distributions with unknown mean and/or unknown variance, to whose models correspond different conjugate priors and thus different forms of the predictive probabilities. However, we considered only the case of univariate Normal distributions with unknown mean and variance, as we wanted to derive from this an algorithm able to treat multivariate timeseries. The univariate case and the multivariate case are discussed in details in the next subsections in order to explain the algorithm and to show how the derivation to the multidimensional case was performed.
+
+\subsection{Univariate Gaussian with Unknown Mean and Variance}
+
+In the case of unidimensional data sampled by a Gaussian $N(\mu,\sigma^2)$ with both mean and variance changing at changepoints, the conjugate prior to the model is the Normal-Inverse-Gamma (NIG) distribution. This distribution is a combination of a Normal prior on the mean $\mu$ and an Inverse Gamma prior distribution on the variance $\sigma^2$:
+\[NIG(\mu, \sigma^2 | \mu_0, \kappa_0, \alpha_0, \beta_0) = N(\mu | \mu_0, \kappa_0\sigma^2)Gamma^{-1}(\sigma^2 | \alpha_0, \beta_0),\]
+where $\mu_0$ is the prior's mean, $\kappa_0$ is a multiplication constant for the variance and $\alpha_0$ and $\beta_0$ are parameters of the Inverse Gamma. It follows that the posterior predictive distribution will also be a NIG distribution, having:
+\[\tilde{x} | X, \mu, \sigma^2  \sim NIG(\mu, \sigma^2 | \mu_n, \kappa_n, \alpha_n, \beta_n),\]
+and whose parameters can directly be derived by the parameters of the prior to get:
+\[\mu_n = \frac{\kappa_0\mu_0 + n\bar{x}}{\kappa_0 + n}, \]
+\[\kappa_n = \kappa_0 + n,\]
+\[\alpha_n = \alpha_0 + n/2,\]
+\[\beta_n = \beta_0 + \frac{1}{2} \sum_{i=1}^{n} (x_i - \bar{x})^2 + \frac{\kappa_0n(\bar{x} - \mu_0)^2}{2(\kappa_0 + n)}. \]
+%These parameters are updated after each iteration of the algorithm such that $\bar{x}$ is ...
+
+As already introduced in the previous section, the other prior distribution that is defined is a distribution on the segment length, represented in this case by the hazard function $H(r_t)$, a geometric distribution with constant rate given by $\lambda$.
+
+After the initialization of prior's parameters $\mu_0$, $\kappa_0$, $\alpha_0$ and $\beta_0$, the algorithm then proceeds by iterating over the whole timeseries. So, for t ranging from 1 to N, the number of datapoints, it performs:
+ 
+\begin{enumerate}
+
+\item Calculation of the posterior predictive probability for the new datum $x_t$:
+\[P(x_t | \mu^{(r_t)}, (\sigma^2)^{(r_t)}) = NIG(\mu^{(r_t)}, (\sigma^2)^{(r_t)} | \mu_t, \kappa_t, \alpha_t, \beta_t),\]
+giving a measure for the likelihood of the new datum to be generated by the parameters associated to each possible run length.
+
+\item Calculation of joint probabilities for the run length $r_t$ and the data from 1 up to t, $x_{1:t}$. There are two different types; the $growth$ probabilities represent the probabilities for the new datum to be part of the current segment and thus to increase the previous step's run length by one. Therefore, the probability for each possible run length j is given by the probability of having a run length of j-1 in the previous time step, combined with the predictive distribution of the current observation and the prior on the segment length:
+\[P(r_t = j , x_{1:t}) = P(r_{t-1} , x_{1:(t-1)})  P(x_t | \mu^{(r_t)}, (\sigma^2)^{(r_t)})  P(r_t | r_{t - 1}),\]
+with the prior on the segment length being in this case:
+\[P(r_t | r_{t - 1}) = (1-H(r_t)).\]
+The $changepoint$ probability, instead, is the probability of the presence of a changepoint at the current time step, such that the run length $r_t = 0$. This happens independently on the value of the run length at the previous time step, thus in this case the probability is given by the sum of all the joint probabilities calculated in the previous time step, combined with the current observation's predictive distribution and the prior on segment length:
+\[P(r_t = 0 , x_{1:t}) = \sum_{j=0}^{t-1} P(r_{t-1} = j , x_{1:(t-1)})  P(x_t | \mu^{(r_t)}, (\sigma^2)^{(r_t)})  P(r_t | r_{t - 1}),\]
+with the prior on segment length being:
+\[P(r_t | r_{t - 1}) = H(r_t).\]
+The prior on the segment length is different for the two joint distributions as in the case of the changepoint probability we are interested in the probability of a changepoint to happen, which is given by the hazard function $H(r_t)$, while in the case of the growth probability we take $1 - (H(r_t))$ as we are interested in the probability of no changepoint in the current time step.
+
+\item Calculation of the posterior distribution from the previously calculated joint distributions for each possible run length:
+\[P(r_t | x_{1:t}) = \frac{P(r_t , x_{1:t})} {P(x_{1:t})},\]
+thus normalizing the joint distribution over the model evidence given by:
+\[P(x_{1:t}) = \sum_{j=0}^{t} P(r_t = j , x_{1:t}).\]
+
+\item Update the model parameters to be used in the next iteration:
+\[\mu_{t+1} = \frac{\kappa_0\mu_0 + t\bar{x}}{\kappa_0 + t}, \]
+\[\kappa_{t+1} = \kappa_0 + t,\]
+\[\alpha_{t+1} = \alpha_0 + t/2,\]
+\[\beta_{t+1} = \beta_0 + \frac{1}{2} \sum_{i=1}^{t} (x_i - \bar{x})^2 + \frac{\kappa_0t(\bar{x} - \mu_0)^2}{2(\kappa_0 + t)}. \]
+
+\end{enumerate}
+
+
+\subsection{Multivariate Gaussian with Unknown Mean and Variance}
+
+While the paper by Adams and MacKay does not discuss any multivariate case, a transformation from the univariate case is possible by modifying some of the steps discussed in the previous section.
+
+We consider data sampled from a multivariate Gaussian $N(\boldsymbol{\mu}, \boldsymbol{\Sigma})$ with changes to be detected both on the means $\boldsymbol{\mu}$ and on the covariance matrix $\boldsymbol{\Sigma}$. Similarly to the univariate case, the conjugate prior to the model is a Normal-Inverse-Wishart (NIW), which corresponds to a multivariate translation of the NIG and is a combination of a multivariate Normal distribution on $\boldsymbol{\mu}$ and an Inverse Wishart distribution on $\boldsymbol{\Sigma}$:
+\[NIW(\boldsymbol{\mu}, \boldsymbol{\Sigma} | \boldsymbol{\mu_0}, \kappa_0, \nu_0, \boldsymbol{\Lambda_0}) = N(\boldsymbol{\mu} | \boldsymbol{\mu_0}, \kappa_0\boldsymbol{\Sigma})W^{-1}(\boldsymbol{\Sigma} | \nu_0, \boldsymbol{\Lambda_0}),\]
+where $\boldsymbol{\mu_0}$ is a vector with the prior's means, $\kappa_0$ is a multiplication constant for the covariance matrix, $\nu_0$ represents the degrees of freedom of the model and $\boldsymbol{\Lambda_0}$ is the inverse scale matrix.
+
+In this case, the posterior predictive distribution will be a NIW distribution, having:
+\[\boldsymbol{\tilde{x}} | \boldsymbol{x}, \boldsymbol{\mu}, \boldsymbol{\Sigma}  \sim NIW(\boldsymbol{\mu}, \boldsymbol{\Sigma} | \boldsymbol{\mu_n}, \kappa_n, \nu_n, \boldsymbol{\Lambda_n}),\]
+with parameters directly derived from the prior distribution with:
+\[\boldsymbol{\mu_n} = \frac{\kappa_0\boldsymbol{\mu_0} + n\boldsymbol{\bar{x}}}{\kappa_0 + n}, \]
+\[\kappa_n = \kappa_0 + n,\]
+\[\nu_n = \nu_0 + n,\]
+\[\boldsymbol{\Lambda_n} = \boldsymbol{\Lambda_0} + \boldsymbol{S} + \frac{\kappa_0n}{\kappa_0 + n}(\boldsymbol{\bar{x}} - \boldsymbol{\mu_0})(\boldsymbol{\bar{x}} - \boldsymbol{\mu_0})^T, \]
+where S is the Scatter matrix given by \(\boldsymbol{S} = \sum_{i=1}^{n}(\boldsymbol{x_i} - \boldsymbol{\bar{x}})(\boldsymbol{x_i} - \boldsymbol{\bar{x}})^T\).
+
+%Algorithm : same 2 and 3 but changes in 1 and 4 as described, thus: ... enumerate
+
+%discuss changes in hazard?
+
+
+
+%\begin{table}
+%\centering
+%\begin{tabular}{l|r}
+%Item & Quantity \\\hline
+%Widgets & 42 \\
+%Gadgets & 13
+%\end{tabular}
+%\caption{\label{tab:widgets}An example table.}
+%\end{table}
+
+%\begin{enumerate}
+%\item Like this,
+%\item and like this.
+%\end{enumerate}
+%\dots or bullet points \dots
+%\begin{itemize}
+%\item Like this,
+%\item and like this.
+%\end{itemize}
+%\dots or with words and descriptions \dots
+%\begin{description}
+%\item[Word] Definition
+%\item[Concept] Explanation
+%\item[Idea] Text
+%\end{description}
+
+\clearpage 
+\begin{thebibliography}{9}
+\bibitem{lsn}
+%  S. Mohammad Khansari-Zadeh and Aude Billard, \textit{Learning Stable Nonlinear Dynamical Systems with Gaussian Mixture Models},
+%   IEEE Transactions of Robotics
+%   Vol. 27, No. 5,
+%   October, 2011
+
+\end{thebibliography}
+
+\end{document}
