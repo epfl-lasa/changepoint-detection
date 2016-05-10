@@ -18,12 +18,12 @@
 
 % Start with a clean slate.
 close all;
-clear all;
+clearvars;
 
 %% Initialization
 
 % How many time steps to generate?
-T = 1000;
+T = 500;
 
 % Specify the hazard function.
 % This is a handle to a function that takes one argument - the number of
@@ -40,6 +40,7 @@ min_len = 0;
 hazard_func  = @(r) constant_hazard(r, lambda);
 
 % To use truncated gaussian:
+
 % mu_len = 300;
 % sigma_len = 50; 
 % min_len = 200;
@@ -70,7 +71,7 @@ CP = [0];
 
 % Generate the initial parameters of the Gaussian from the prior.
 curr_ivar = wishrnd(inv(sigma0),nu0);
-curr_mean = mvnrnd(mu0,kappa0.*curr_ivar);
+curr_mean = mvnrnd(mu0,curr_ivar);
 
 % The initial run length is zero.
 curr_run = 0;
@@ -86,13 +87,13 @@ for t=1:T
       if curr_run > 200
           % Generate new Gaussian parameters from the prior.
           curr_ivar = wishrnd(inv(sigma0),nu0);
-          curr_mean = mvnrnd(mu0,kappa0.*curr_ivar);
+          curr_mean = mvnrnd(mu0,curr_ivar);
 
           % The run length drops back to zero.
           curr_run = 0;
           
           % Add this changepoint to the end of the list.
-          CP = [CP ; t];
+          CP = [CP ; t-1];
       end
   else
     
@@ -108,11 +109,11 @@ end
 
 %Plot the data and we'll have a look.
 subplot(3,1,1);
-plot([1:T]', X(:,1), 'b-', CP, zeros(size(CP)), 'rx');
+plot([1:T]', X(:,1), 'b-');%, CP, zeros(size(CP)), 'rx');
 grid on;
 if dim > 1
     subplot(3,1,2);
-    plot([1:T]', X(:,2), 'b-', CP, zeros(size(CP)), 'rx');
+    plot([1:T]', X(:,2), 'b-');%, CP, zeros(size(CP)), 'rx');
     grid on;
 end
 
@@ -138,8 +139,13 @@ sigmaT(:,:,1) = sigma0;
 
 % Keep track of the maximums.
 maxes  = zeros(T+1,1);
-% changed from "zeros([T+1])" to reduce memory (only first column used)
+ChPnt = [];
+mu_saved = [];
+mu = [];
+cnt = 0;
+flag = 1;
 
+tic;
 
 % Loop over the data like we're seeing it all for the first time.
 for t=1:T
@@ -168,31 +174,50 @@ for t=1:T
   % Renormalize the run length probabilities for improved numerical
   % stability.
   R(:,t+1) = R(:,t+1) ./ sum(R(:,t+1));
+
+  
+  % Store the maximum, to plot later.
+  maxes(t) = find(R(:,t)==max(R(:,t)));
+  
+  if flag == 0 && maxes(t) < 15
+     flag = 1;
+     mu = muT(t,:);
+  elseif flag == 1 && t>1
+     if maxes(t) - maxes(t-1) < 5
+        cnt = cnt + 1;
+        if cnt > 15
+           ChPnt = [ChPnt; t-maxes(t)];
+           mu_saved = [mu_saved; mu];
+           flag = 0;
+           cnt = 0;
+        end
+     else
+        flag = 0;
+        cnt = 0;
+     end
+  end
   
   
   % Update the parameter sets for each possible run length.
-%   muT0    = [ mu0    ; (kappaT.*muT(:,1) + X(t,1)) ./ (kappaT+1) , ...
-%       (kappaT.*muT(:,2) + X(t,2)) ./ (kappaT+1)];
   muT0    = [mu0; bsxfun(@rdivide, bsxfun(@plus, bsxfun(@times, kappaT, muT), X(t,:)), (kappaT+1))];
   kappaT0 = [ kappa0 ; kappaT + 1 ];
   nuT0    = [ nu0    ; nuT + 1 ];
   sigmaT0 = sigmaT;
   sigmaT(:,:,1) = sigma0;
-%   X_mu = [(X(t,1)-muT(:,1)),(X(t,2)-muT(:,2))];
   X_mu = bsxfun(@minus, X(t,:), muT);
   for i = 1:t
       X_mu_2 = X_mu(i,:)'*X_mu(i,:);
       sigmaT(:,:,i+1) = sigmaT0(:,:,i) + kappaT(i).*X_mu_2./(2*(kappaT(i)+1));
-  end
-  
+  end 
   muT     = muT0;
   kappaT  = kappaT0;
   nuT     = nuT0;
   
-  % Store the maximum, to plot later.
-  maxes(t) = find(R(:,t)==max(R(:,t)));
-  
 end
+
+mu_saved = [mu_saved; muT(T,:)];
+
+toc;
 
 % Show the log smears and the maximums.
 subplot(3,1,3);
@@ -211,5 +236,20 @@ N_CPs = length(CPs);
 figure('Color',[1 1 1])
 for i=1:N_CPs
     subplot(N_CPs,1,i)
+    hold on
     scatter(X(CPs(i,1):CPs(i,2),1), X(CPs(i,1):CPs(i,2),2), 10, [rand rand rand])
+    plot(muT(CPs(i,2)+1,1), muT(CPs(i,2)+1,2), '*')
+end
+
+%% Checking data with stored changepoints and paramaters
+
+CPs   = [ChPnt+1, [ChPnt(2:end)+2; T]];
+N_CPs = length(CPs);
+
+figure('Color',[1 1 1])
+for i=1:N_CPs
+    subplot(N_CPs,1,i)
+    hold on
+    scatter(X(CPs(i,1):CPs(i,2),1), X(CPs(i,1):CPs(i,2),2), 10, [rand rand rand])
+    plot(mu_saved(i,1), mu_saved(i,2), '*')
 end

@@ -10,12 +10,12 @@ clearvars;
 %% Import data
 
 % 2d toy dataset
-load('2D_Toy_Data.mat');
-X = [Xn{3,1}'; Xn{4,1}'];
+% load('2D_Toy_Data.mat');
+% X = [Xn{4,1}'];
 
 % Carrot Grating dataset
-% load('CarrotGrating.mat');
-% X = [Xn{2,1}'];
+load('CarrotGrating.mat');
+X = [Xn{1,1}'];
 
 % Dough Rolling dataset
 % load('Rolling_Raw.mat');
@@ -23,7 +23,16 @@ X = [Xn{3,1}'; Xn{4,1}'];
 
 % Preprocessed Dough Rolling dataset
 % load('Rolling_Processed.mat');
-% X = [Xn_ch{1,1}'];
+% X = [Xn_ch{3,1}'];
+
+% 30 Industry Portfolios
+% load('30_industry.mat');
+% X = thirty_industry(:,2:end);
+
+% Bee sequence
+% load('bee_seq2.mat');
+% X = bee;
+
 
 %% Initialization
 
@@ -36,6 +45,13 @@ T = size(X,1);
 lambda = 200;
 min_len = 0;
 hazard_func  = @(r) constant_hazard(r, lambda);
+
+% To use logistic:
+% min_len = 0;
+% h = 0.01;
+% a = 0.01;
+% b = 0;
+% hazard_func = @(r) logistic_h(r, [h,a,b]);
 
 % To use truncated gaussian:
 % mu_len = 200;
@@ -50,6 +66,17 @@ kappa0 = 1;
 nu0 = dim;
 sigma0 = eye(dim);
 
+%% Plot data and real changepoints (for bees)
+
+% figure;
+% plot([1:T]', X);
+% hold on;
+% for l=1:size(bee_change)
+%     if bee_change(l) 
+%         plot([l l],ylim,'r');
+%     end
+% end
+% grid on;
 
 %% Data already generated/imported
 
@@ -132,7 +159,7 @@ for t=1:T
   maxes(t) = find(R(:,t)==max(R(:,t)));
   
   %if flag == 0 && maxes(t) < 25 && t>25
-  if t > 1 && maxes(t) - maxes(t-1) < -10 && maxes(t) < 20
+  if t > 1 && maxes(t) - maxes(t-1) < -10 %&& maxes(t) < 20
      flag = 1;
      mu = muT_segment(curr_t,:);
      covar = 2*(kappaT_segment(curr_t)+1).*sigmaT_segment(:,:,curr_t) ...
@@ -204,18 +231,18 @@ covar_saved = [covar_saved; 2*(kappaT_segment(curr_t)+1).*sigmaT_segment(:,:,cur
 
 toc;
 
-%Plot the data and we'll have a look.
-subplot(3,1,1);
-plot([1:T]', X(:,1), 'b-', ChPnt, zeros(size(ChPnt)), 'rx');
-grid on;
-if dim > 1
-    subplot(3,1,2);
-    plot([1:T]', X(:,2), 'b-', ChPnt, zeros(size(ChPnt)), 'rx');
-    grid on;
+%% Plot the data and we'll have a look.
+
+subplot(2,1,1);
+plot([1:T]', X);
+hold on;
+for l=1:size(ChPnt) 
+    plot([ChPnt(l) ChPnt(l)],ylim,'r');
 end
+grid on;
 
 % Show the log smears and the maximums.
-subplot(3,1,3);
+subplot(2,1,2);
 colormap(gray());
 imagesc(-log(R));
 hold on;
