@@ -5,20 +5,16 @@ import seaborn
 
 import cProfile
 import StudentTMulti as st
-import online_cpd as oncpd
+import Detector as dt
+import hazards as hz
 import generate_data as gd
 from functools import partial
 
 if __name__ == '__main__':
   show_plot = True
   dim = 2
-  if dim == 1:
-    partition, data = gd.generate_normal_time_series(7, 50, 200)
-    prior = oncpd.StudentT(alpha=1, beta=1, kappa=1, mu=0)
-  else:
-    #partition, data = gd.generate_multinormal_time_series(5, dim, 100, 300)
-    data = ld.load_data("CarrotGrating.mat")
-    prior = st.StudentTMulti(nu=dim, Lambda=np.eye(dim), kappa=1, mu=np.zeros(dim), dim=dim)
+  partition, data = gd.generate_multinormal_time_series(5, dim, 100, 300)
+  prior = st.StudentTMulti(nu=dim, Lambda=np.eye(dim), kappa=1, mu=np.zeros(dim), dim=dim)
   changes = np.cumsum(partition)
 
   if show_plot:
@@ -29,8 +25,12 @@ if __name__ == '__main__':
       ax.plot(data[:,d])
     plt.show()
 
+  detector = dt.Detector()
 
-  R, maxes, CP, theta = oncpd.online_cpd(data,partial(oncpd.constant_hazard,lam=200),prior)
+  for t, x in enumerate(data):
+    detector.detect(x,partial(hz.constant_hazard,lam=200),prior)
+
+  maxes, CP, theta = detector.retrieve(prior)
 
   print "Changepoints locations:"
   print CP
@@ -40,7 +40,7 @@ if __name__ == '__main__':
   if show_plot:
     fig, ax = plt.subplots(figsize=[18, 16])
     ax = fig.add_subplot(2, 1, 1)
-    for p in changes:
+    for p in CP:
       ax.plot([p,p],[np.min(data),np.max(data)],'r')
     for d in range(dim):
       ax.plot(data[:,d])

@@ -24,8 +24,8 @@ class StudentTMulti:
 	mult = np.zeros(length)
 	scale = np.zeros((length,dim,dim))
 	if length == 1 :
-	    scale=np.linalg.inv(lam * (2*(self.kappa+1)) / (df * self.kappa))
-	    mult=[np.matmul(np.matmul((data-loc),scale),np.transpose(data-loc))]
+		scale=np.linalg.inv(lam * (2*(self.kappa+1)) / (df * self.kappa))
+		mult=np.matmul(np.matmul((data-loc),scale),np.transpose(data-loc))
 	else :
 	    scaling = np.transpose([2*(self.kappa+1) / (df * self.kappa)])
 	    for i in range(length):
