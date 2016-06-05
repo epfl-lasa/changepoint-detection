@@ -23,7 +23,7 @@ clearvars;
 %% Initialization
 
 % How many time steps to generate?
-T = 500;
+T = 1000;
 
 % Specify the hazard function.
 % This is a handle to a function that takes one argument - the number of
@@ -54,7 +54,7 @@ hazard_func  = @(r) constant_hazard(r, lambda);
 % lots of references out there for doing this kind of inference - for
 % example Chris Bishop's "Pattern Recognition and Machine Learning" in
 % Chapter 2.  Also, Kevin Murphy's lecture notes.
-dim = 2 ;               %dimension of data
+dim = 6 ;               %dimension of data
 mu0    = zeros(1,dim);
 kappa0 = 1;
 nu0 = dim;

@@ -96,7 +96,11 @@ end
 
 % Plot the data and we'll have a look.
 subplot(2,1,1);
-plot([1:T]', X, 'b-', CP, zeros(size(CP)), 'rx');
+hold on;
+plot([1:T]', X, 'b-'); % CP, zeros(size(CP)), 'rx');
+for l=1:size(CP) 
+    plot([CP(l) CP(l)],ylim,'r');
+end
 grid;
  
 
