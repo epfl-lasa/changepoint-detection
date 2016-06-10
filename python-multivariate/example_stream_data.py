@@ -11,10 +11,10 @@ import generate_data as gd
 from functools import partial
 
 if __name__ == '__main__':
-  show_plot = True
+  show_plot = False
   dim = 2
   partition, data = gd.generate_multinormal_time_series(5, dim, 100, 300)
-  prior = st.StudentTMulti(nu=dim, Lambda=np.eye(dim), kappa=1, mu=np.zeros(dim), dim=dim)
+  prior = st.StudentTMulti(dim)
   changes = np.cumsum(partition)
 
   if show_plot:
@@ -27,8 +27,12 @@ if __name__ == '__main__':
 
   detector = dt.Detector()
 
+  plt.axis([0, len(data), np.min(data), np.max(data)])
+  plt.ion()
+
   for t, x in enumerate(data):
     detector.detect(x,partial(hz.constant_hazard,lam=200),prior)
+    detector.plot_data_CP(x)
 
   maxes, CP, theta = detector.retrieve(prior)
 

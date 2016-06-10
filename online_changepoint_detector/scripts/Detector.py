@@ -1,4 +1,6 @@
 from __future__ import division
+import rospy
+from rospy.numpy_msg import numpy_msg
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
@@ -54,6 +56,7 @@ class Detector:
 		   self.flag = False
 		   self.cnt = 0
 		   self.CP = np.concatenate((self.CP, [self.last_cp+t-self.maxes[-1]+1]))
+		   self.displayCP()
 		   self.prev_cp = self.last_cp
 		   self.last_cp = self.CP[-1]
 		   self.curr_t = int(t-(self.last_cp-self.prev_cp))
@@ -77,6 +80,10 @@ class Detector:
         observation_likelihood.save_theta()
         self.theta = observation_likelihood.retrieve_theta()
         return self.maxes, self.CP, self.theta
+
+    def displayCP(self):
+	
+	rospy.loginfo("\nLast changepoint fount at position %f\n", self.CP[-1])
 
     def plot_data_CP(self, x):
 
