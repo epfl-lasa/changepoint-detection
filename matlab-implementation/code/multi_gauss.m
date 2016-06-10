@@ -229,7 +229,7 @@ mu_saved = [mu_saved; muT_segment(curr_t,:)];
 covar_saved = [covar_saved; 2*(kappaT_segment(curr_t)+1).*sigmaT_segment(:,:,curr_t)...
     ./(nuT_segment(curr_t)*kappaT_segment(curr_t))];
 
-toc;
+elapsed = toc;
 
 %% Plot the data and we'll have a look.
 
@@ -252,7 +252,7 @@ hold off;
 
 %% Checking data with stored changepoints and paramaters
 
-CPs   = [ChPnt, [ChPnt(2:end)+1; T]];
+CPs   = [ChPnt, [ChPnt(2:end); T]];
 N_CPs = length(CPs);
 
 figure('Color',[1 1 1])

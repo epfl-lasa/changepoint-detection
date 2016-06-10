@@ -30,8 +30,12 @@ clearvars;
 % X = thirty_industry(:,2:end);
 
 % Bee sequence
-load('bee_seq2.mat');
-X = bee;
+% load('bee_seq2.mat');
+% X = bee;
+
+% Peeling
+load('proc_data.mat')
+X = proc_data{1,2}.active.X(1:7,:)';
 
 
 %% Initialization
@@ -209,7 +213,7 @@ covar = 2*(kappaT(curr_t)+1).*sigmaT(:,:,curr_t) ...
          ./ (nuT(curr_t)*kappaT(curr_t));
 covar_saved = [covar_saved; covar];
 
-toc;
+elapsed = toc;
 
 %% Plot the data with found changepoints
 
@@ -233,7 +237,7 @@ hold off;
 
 %% Checking data with stored changepoints and paramaters
 
-CPs   = [ChPnt+1, [ChPnt(2:end)+2; T]];
+CPs   = [ChPnt+1, [ChPnt(2:end); T]];
 N_CPs = length(CPs);
 
 figure('Color',[1 1 1])
