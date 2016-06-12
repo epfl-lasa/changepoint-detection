@@ -9,28 +9,38 @@ Supervisors: Nadia Figueroa, Jose Medina
 ├── README.md
 └── matlab
     ├── README.md
-    ├── classifier.py
-    ├── data_format.py
-    ├── data_gen.py
-    ├── data_reader.py
-    ├── data_reader.pyc
-    ├── reporting.py
-    ├── reports
-    │   └── img
-    │       ├── image.png
-    ├── sims
-    │   ├── simulation-year-month-day-h-m-s.csv
-    └── toy_problem.py
+    │   └── code
+        │   ├── *.m
+        │   └── hazards
+        │       ├── *.m
+        │   └── priors
+        │       ├── *.m
+    │   └── lightspeed
+    │   ├── *.c
+    │   ├── *.m
 └── python
+    ├── python-univariate
+        ├── README.md
+        │    *.py 
+        │   └── bayesian_changepoint_detection
+        │       ├── *.py
+    ├── python-multivariate
+        │   ├── README.md
+        │    *.py
 └── online_changepoint_detector
+    ├── CMakeLists.txt
+    ├── package.xml
+    └── scripts
+    │   ├──  *.py    
 └── data
+    ├── README.md
+    │   ├── *.mat
 └── results - figures
+    │   ├── *.fig
 └── report-project-changepoint
-  ├── README.md
-  ├── main.tex
-  └── results - figures
-  │   └── *.fig
-  └── references
-  │   └── *.pdf
+    ├── README.md
+    ├── main.tex
+    └── references
+    │   ├── *.pdf
 ```
 
