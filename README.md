@@ -39,15 +39,20 @@ You can find each implementation in its corresponding folder:
 
 #### Instructions:
 
-***Matlab***
-The matlab implementation is a self-contained code, no dependencies are needed. Except for the [lightspeed](http://research.microsoft.com/en-us/um/people/minka/software/lightspeed/) toolboc, which is provided within the folder.
+####Matlab
+The matlab implementation is a self-contained code, no dependencies are needed. Except for the [lightspeed](http://research.microsoft.com/en-us/um/people/minka/software/lightspeed/) toolbox, which is provided within the folder.
 
 In order to run the changepoint detector, run ``./matlab/code/gaussdemo_multi.m```.
 
-***Python***
+####Python
+For the python implementation, install the following python libraries for linear algebra, machine learning methods and plotting:
+```
+$ sudo apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose
+```
+Then install seaborn:
+```
+$ sudo pip install seaborn
+```
 
 
-
-
-
-***Ros Node***
+####Ros Node
