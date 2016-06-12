@@ -10,7 +10,7 @@ We provide 3 implementations:
 - ros node written in python (online_changepoint_detector)
 
 You can find each implementation in its corresponding folder:
-#### Structure
+##### Structure
 ```
 .
 ├── README.md
