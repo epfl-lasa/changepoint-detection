@@ -54,8 +54,9 @@ Then install seaborn:
 $ sudo pip install seaborn
 ```
 
-Once installed, you can test the following examples:
+Once installed, you can test the following example, found in ``./python/python-multivariate/``:
+```
 $ python ./example_stream_data.py
-$ python ./example_multi.py
+```
 
 ####Ros Node
