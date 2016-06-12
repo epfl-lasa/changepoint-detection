@@ -2,8 +2,15 @@
 Student Project: Ilaria Lauzana
 Supervisors: Nadia Figueroa, Jose Medina
 
-# Structure
+This repository contains the implementation of the Bayesian Online Multivariate Changepoint Detection algorithm, proposed by Ilaria Lauzana, Nadia Figueroa and Jose Medina. 
 
+We provide 3 implementations:
+- matlab
+- python
+- ros node written in python (online_changepoint_detector)
+
+You can find each implementation in its corresponding folder:
+#### Structure
 ```
 .
 ├── README.md
@@ -28,3 +35,12 @@ Supervisors: Nadia Figueroa, Jose Medina
     └── references
 ```
 
+#### Instructions:
+
+***Matlab***
+
+
+***Python***
+
+
+***Ros Node***
