@@ -1,6 +1,7 @@
 #### Bayesian Online Multivariate Changepoint Detection Algoithm 
-Student Project: Ilaria Lauzana
-Supervisors: Nadia Figueroa, Jose Medina
+######Student Project: Ilaria Lauzana
+######Supervisors: Nadia Figueroa, Jose Medina
+---
 
 This repository contains the implementation of the Bayesian Online Multivariate Changepoint Detection algorithm, proposed by Ilaria Lauzana, Nadia Figueroa and Jose Medina. 
 
