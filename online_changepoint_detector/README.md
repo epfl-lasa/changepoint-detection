@@ -15,3 +15,4 @@ $ rosbag play *.bag
 ```
 
 ###Run Changepoint Detector
+rosrun online_changepoint_detector data_listener_detector.py
