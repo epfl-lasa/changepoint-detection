@@ -63,4 +63,6 @@ $ python ./example_stream_data.py
 ```
 
 ####Ros Node
-Follow the ```README``` file in ```./online-changepoint-detector/```. :)
+Follow the ```README``` file in ```./online-changepoint-detector/``` 
+
+:)
