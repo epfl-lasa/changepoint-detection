@@ -1,1 +1,2 @@
-#### Bayesian Online Multivariate Changepoint Detection Algoithm (Lauzana, Medina, Figueroa)
+#### Bayesian Online Multivariate Changepoint Detection Algoithm 
+(Lauzana, Medina, Figueroa)
