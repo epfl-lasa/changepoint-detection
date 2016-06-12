@@ -1,4 +1,4 @@
-#### Bayesian Online Multivariate Changepoint Detection Algoithm 
+#### Bayesian Online Multivariate Changepoint Detection Algorithm 
 ***Student:*** Ilaria Lauzana
 ***Supervisors:*** Nadia Figueroa, Jose Medina
 
