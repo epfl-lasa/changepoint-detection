@@ -16,8 +16,8 @@ Supervisors: Nadia Figueroa, Jose Medina
         │   └── priors
         │       ├── *.m
     │   └── lightspeed
-    │   ├── *.c
-    │   ├── *.m
+        │   ├── *.c
+        │   ├── *.m
 └── python
     ├── python-univariate
         ├── README.md
@@ -31,7 +31,7 @@ Supervisors: Nadia Figueroa, Jose Medina
     ├── CMakeLists.txt
     ├── package.xml
     └── scripts
-    │   ├──  *.py    
+        │   ├──  *.py    
 └── data
     ├── README.md
     │   ├── *.mat
@@ -41,6 +41,6 @@ Supervisors: Nadia Figueroa, Jose Medina
     ├── README.md
     ├── main.tex
     └── references
-    │   ├── *.pdf
+        │   ├── *.pdf
 ```
 
