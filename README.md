@@ -40,9 +40,14 @@ You can find each implementation in its corresponding folder:
 #### Instructions:
 
 ***Matlab***
+The matlab implementation is a self-contained code, no dependencies are needed. Except for the [lightspeed](http://research.microsoft.com/en-us/um/people/minka/software/lightspeed/) toolboc, which is provided within the folder.
 
+In order to run the changepoint detector, run ``./matlab/code/gaussdemo_multi.m```.
 
 ***Python***
+
+
+
 
 
 ***Ros Node***
