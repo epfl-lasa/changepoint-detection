@@ -9,7 +9,7 @@ This repository contains the implementation of the Bayesian Online Multivariate 
 We provide 3 implementations:
 - matlab
 - python
-- ros node written in python (online_changepoint_detector)
+- ros node to detect changepoints from streaming data (online_changepoint_detector)
 
 You can find each implementation in its corresponding folder:
 ##### Structure
