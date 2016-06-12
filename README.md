@@ -73,6 +73,6 @@ $ sudo pip install numpy --upgrade
 ---
 
 ####Ros Node
-Follow the ```README``` file in ```./online-changepoint-detector/```, must have all dependencies install for the ```python``` implementation.
+Follow the ```README``` file in ```./online-changepoint-detector/```, must have all dependencies installed for the ```python``` implementation.
 
 ... piece of :cake:
