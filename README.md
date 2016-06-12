@@ -62,6 +62,11 @@ Once installed, you can test the following example, found in ``./python/python-m
 $ python ./example_stream_data.py
 ```
 
+If something is not working, try updating numpy, this generallt fixes the problem:
+```
+$ sudo pip install numpy --upgrade
+```
+
 ####Ros Node
 Follow the ```README``` file in ```./online-changepoint-detector/``` 
 
