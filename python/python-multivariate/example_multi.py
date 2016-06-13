@@ -17,7 +17,7 @@ if __name__ == '__main__':
     prior = oncpd.StudentT(alpha=1, beta=1, kappa=1, mu=0)
   else:
     partition, data = gd.generate_multinormal_time_series(5, dim, 100, 300)
-    prior = st.StudentTMulti(nu=dim, Lambda=np.eye(dim), kappa=1, mu=np.zeros(dim), dim=dim)
+    prior = st.StudentTMulti(dim)
   changes = np.cumsum(partition)
 
   if show_plot:
@@ -28,7 +28,7 @@ if __name__ == '__main__':
       ax.plot(data[:,d])
     plt.show()
 
-
+  print "Starting detection algorithm"
   R, maxes, CP, theta = oncpd.online_cpd(data,partial(oncpd.constant_hazard,lam=200),prior)
 
   print "Changepoints locations:"

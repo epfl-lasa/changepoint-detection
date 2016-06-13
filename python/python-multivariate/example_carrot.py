@@ -24,7 +24,7 @@ if __name__ == '__main__':
     X = data_mat["Xn"]
     data = np.transpose(X[0,0])
     dim = data.shape[1]
-    prior = st.StudentTMulti(nu=dim, Lambda=np.eye(dim), kappa=1, mu=np.zeros(dim), dim=dim)
+    prior = st.StudentTMulti(dim)
     changes = 0
 
   if show_plot:
