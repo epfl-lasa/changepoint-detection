@@ -1,7 +1,6 @@
 #### Bayesian Online Multivariate Changepoint Detection Algorithm 
-***Student:*** Ilaria Lauzana
-***Supervisors:*** Nadia Figueroa, Jose Medina
-Learning Algorithms and Systems Laboratory (LASA), EPFL 
+***Student:*** Ilaria Lauzana  
+***Supervisors:*** [Nadia Figueroa](http://lasa.epfl.ch/people/member.php?SCIPER=238387), Jose Medina 
 
 ---
 
