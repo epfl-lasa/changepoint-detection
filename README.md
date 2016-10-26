@@ -1,7 +1,7 @@
 #### Bayesian Online Multivariate Changepoint Detection Algorithm 
 ***Student:*** Ilaria Lauzana
 ***Supervisors:*** Nadia Figueroa, Jose Medina
-
+Learning Algorithms and Systems Laboratory (LASA), EPFL
 ---
 
 This repository contains the implementation of the Bayesian Online Multivariate Changepoint Detection algorithm, proposed by Ilaria Lauzana, Nadia Figueroa and Jose Medina. 
