@@ -40,7 +40,7 @@ You can find each implementation in its corresponding folder:
 #### Instructions:
 ---
 
-####Matlab
+#### Matlab
 The matlab implementation is a self-contained code, no dependencies are needed. Except for the [lightspeed](http://research.microsoft.com/en-us/um/people/minka/software/lightspeed/) toolbox, which is provided within the folder.
 
 In order to run the changepoint detector, run the follwing script found in ```./matlab/code/```:
@@ -50,7 +50,7 @@ In order to run the changepoint detector, run the follwing script found in ```./
 
 ---
 
-####Python
+#### Python
 For the python implementation, install the following python libraries for linear algebra, machine learning methods and plotting:
 ```
 $ sudo apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose
@@ -72,7 +72,7 @@ $ sudo pip install numpy --upgrade
 
 ---
 
-####Ros Node
+#### Ros Node
 Follow the ```README``` file in ```./online-changepoint-detector/```, must have all dependencies installed for the ```python``` implementation.
 
 ... piece of :cake:
